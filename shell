@@ -1,0 +1,50 @@
+
+function pt
+{
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    PTOOL="$DIR/ptool.php"
+
+    $PTOOL $1
+
+    DEVPATH=$($DIR/getpath.php)
+    VAL="$DEVPATH/shell"
+
+    test -f "$VAL" && {
+        source "$VAL"
+    }
+}
+
+function e
+{
+    ~/bin/e $* 2> /tmp/editthisfile
+
+    if [ ! `cat /tmp/editthisfile` = "" ]; then
+        F=$(cat /tmp/editthisfile)
+
+        if test -d "$F"; then
+            cd "$F"
+            rm -f /tmp/editthisfile
+            return
+        fi
+
+        D=$(dirname $(cat /tmp/editthisfile))
+        cd $D
+        vim $F
+    fi
+
+    rm -f /tmp/editthisfile
+}
+
+function g
+{
+    ~/bin/e $* 2> /tmp/editthisfile
+
+    if [ ! `cat /tmp/editthisfile` = "" ]; then
+        cd $(dirname $(cat /tmp/editthisfile))
+    fi
+
+    rm -f /tmp/editthisfile
+}
+
+alias N="e _NOTES_"
+
