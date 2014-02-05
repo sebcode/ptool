@@ -20,6 +20,7 @@ try {
     }
 
     $searchExt = '';
+    $arg = false;
 
     foreach ($argv as $i => $a) {
         if ($i == 0) {
@@ -56,19 +57,35 @@ try {
         exit(0);
     }
 
+    if ($arg === '-a') {
+        $arg = false;
+    }
+
+    $onlyGit = false;
+    if ($arg === '-g') {
+        $arg = false;
+        $onlyGit = true;
+    }
+
     $path = $project->getRepoPath();
-    $cmd = "find ". $project->getRepoPath() ." ";
+    $cmd = "find ". rtrim($project->getRepoPath(), '/') ." ";
     foreach ($ignoreDirs as &$ignoreDir) {
         $ignoreDir = ' -not \( -name ' . $ignoreDir . ' -prune \) ';
     }
     $cmd .= implode('-and', $ignoreDirs);
-    $cmd .= " | grep -i " . escapeshellcmd($arg);
+    if ($arg) {
+        $cmd .= " | grep -i " . escapeshellcmd($arg);
+    }
 
-    $output = shell_exec($cmd);
+    if ($onlyGit) {
+        $output = '';
+    } else {
+        $output = shell_exec($cmd);
 
-    if (!$output) {
-        echo "No results :-(\n";
-        exit(1);
+        if (!$output) {
+            echo "No results :-(\n";
+            exit(1);
+        }
     }
 
     $openFiles = array();
@@ -84,6 +101,24 @@ try {
         $prioConf = include($f);
     }
 
+    // XXX muss auch ausserhalb des git repos funzen
+    $gitbase = trim(shell_exec('git rev-parse --show-toplevel'));
+    $gitfiles = array();
+    if ($gitbase) {
+        $res = shell_exec('git status --porcelain');
+        foreach (explode("\n", $res) as $file) {
+            if (!$file = substr($file, 3)) {
+                continue;
+            }
+            if ($file = realpath($gitbase .'/'. $file)) {
+                $gitfiles[] = $file;
+                if ($onlyGit) {
+                    $output .= "$file\n";
+                }
+            }
+        }
+    }
+
     foreach (explode("\n", $output) as $file) {
         if (preg_match('@(.*?).swp$@', $file, $m)) {
             $realFile = dirname($m[1]) .'/'. ltrim(basename($m[1]), '.');
@@ -95,7 +130,7 @@ try {
             continue;
         }
 
-        $rel = substr($file, strlen($path) + 1);
+        $rel = substr($file, strlen($path));
         $reli = strtolower($rel);
         $ext = pathinfo($file, PATHINFO_EXTENSION);
 
@@ -115,8 +150,12 @@ try {
         }
 
         /* put direct match to top */
-        if (basename($reli) == strtolower($arg)) {
+        if ($arg && basename($reli) == strtolower($arg)) {
             $prio += 600;
+        }
+
+        if (in_array($file, $gitfiles)) {
+            $prio += 500;
         }
 
         $files[$i] = $file;
@@ -135,7 +174,7 @@ try {
     }
 
     foreach ($files as $i => $file) {
-        $rel = substr($file, strlen($path) + 1);
+        $rel = substr($file, strlen($path));
         $prio = $prios[$i];
 
         echo str_pad($i, 3, ' ', STR_PAD_LEFT) . ' ';
