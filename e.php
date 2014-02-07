@@ -1,6 +1,9 @@
 #!/usr/bin/env php
 <?php
 
+$buf = array();
+$sel = 0;
+
 if (file_exists($f = $_SERVER['HOME'] . '/.ptoolignore')) {
     $ignoreDirs = include($f);
 } else {
@@ -175,28 +178,29 @@ try {
         $isGitFile = in_array($file, $gitfiles);
         $hasColor = false;
 
-        echo str_pad("($prio)", 6, ' ', STR_PAD_RIGHT);
-        echo str_pad($i, 3, ' ', STR_PAD_LEFT) . ' ';
+        $line = '';
+        $line .= str_pad("($prio)", 6, ' ', STR_PAD_RIGHT);
+        $line .= str_pad($i, 3, ' ', STR_PAD_LEFT) . ' ';
 
         if (in_array($file, $openFiles)) {
-            echo "\e[0;35m";
+            $line .= "\e[0;35m";
             $hasColor = true;
         } else if ($isGitFile) {
-            echo "\e[0;32m";
+            $line .= "\e[0;32m";
             $hasColor = true;
         }
 
-        echo " $rel";
+        $line .= " $rel";
 
         if ($hasColor) {
-            echo "\e[0m";
+            $line .= "\e[0m";
         }
 
-        echo "\n";
+        buf($line);
     }
 
     if ($numMore) {
-        echo "($numMore more)\n";
+        buf("($numMore more)\n");
     }
 
     if (empty($files)) {
@@ -204,18 +208,51 @@ try {
         exit(1);
     }
 
-    while (true) {
-        $sel = trim(readline('Select? '));
+    buf("\nSelect? ");
 
-        if (!$sel) {
+    readline_callback_handler_install('', function() { });
+
+    $sel = 0;
+    passthru('clear');
+    printbuf();
+
+    while (true) {
+      $r = array(STDIN);
+      $w = NULL;
+      $e = NULL;
+      $n = stream_select($r, $w, $e, 0);
+      if ($n && in_array(STDIN, $r)) {
+        passthru('clear');
+        $c = stream_get_contents(STDIN, 1);
+        if (is_numeric($c)) {
+          $sel .= $c;
+        }
+        if (ord($c) === 8) {
+          $sel = 0;
+        }
+        if (ord($c) === 10) {
+          break;
+        }
+        if (strtolower($c) === 'j') {
+          $sel++;
+        }
+        if (strtolower($c) === 'k') {
+          $sel--;
+        }
+        if ($sel <= 0) {
             $sel = 0;
         }
+        printbuf();
+      }
+    }
 
-        if (isset($files[$sel])) {
-            fwrite(STDERR, $files[$sel]);
-            exit(0);
-        }
+    if (!$sel) {
+        $sel = 0;
+    }
 
+    if (isset($files[$sel])) {
+        fwrite(STDERR, $files[$sel]);
+        exit(0);
     }
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";
@@ -237,5 +274,24 @@ function findPrioConf($filename)
     }
 
     return false;
+}
+
+function buf($s)
+{
+    global $buf;
+    $buf[] = $s;
+}
+
+function printbuf()
+{
+    global $buf, $sel;
+    foreach ($buf as $i => $s) {
+        if ($i == $sel) {
+            echo ">";
+        } else {
+            echo " ";
+        }
+        echo " $s\n";
+    }
 }
 
