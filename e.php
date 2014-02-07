@@ -101,20 +101,16 @@ try {
         $prioConf = include($f);
     }
 
-    // XXX muss auch ausserhalb des git repos funzen
-    $gitbase = trim(shell_exec('git rev-parse --show-toplevel'));
     $gitfiles = array();
-    if ($gitbase) {
-        $res = shell_exec('git status --porcelain');
-        foreach (explode("\n", $res) as $file) {
-            if (!$file = substr($file, 3)) {
-                continue;
-            }
-            if ($file = realpath($gitbase .'/'. $file)) {
-                $gitfiles[] = $file;
-                if ($onlyGit) {
-                    $output .= "$file\n";
-                }
+    $res = shell_exec("cd $path; git status --porcelain");
+    foreach (explode("\n", $res) as $file) {
+        if (!$file = substr($file, 3)) {
+            continue;
+        }
+        if ($file = realpath($path .'/'. $file)) {
+            $gitfiles[] = $file;
+            if ($onlyGit) {
+                $output .= "$file\n";
             }
         }
     }
@@ -176,13 +172,24 @@ try {
     foreach ($files as $i => $file) {
         $rel = substr($file, strlen($path));
         $prio = $prios[$i];
+        $isGitFile = in_array($file, $gitfiles);
+        $hasColor = false;
 
-        echo str_pad($i, 3, ' ', STR_PAD_LEFT) . ' ';
         echo str_pad("($prio)", 6, ' ', STR_PAD_RIGHT);
-        echo " $rel";
+        echo str_pad($i, 3, ' ', STR_PAD_LEFT) . ' ';
 
         if (in_array($file, $openFiles)) {
-            echo " (OPEN)";
+            echo "\e[0;35m";
+            $hasColor = true;
+        } else if ($isGitFile) {
+            echo "\e[0;32m";
+            $hasColor = true;
+        }
+
+        echo " $rel";
+
+        if ($hasColor) {
+            echo "\e[0m";
         }
 
         echo "\n";
