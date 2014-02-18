@@ -225,7 +225,11 @@ try {
         passthru('clear');
         $c = stream_get_contents(STDIN, 1);
         if (is_numeric($c)) {
-          $sel .= $c;
+          if (!$sel) {
+            $sel = $c;
+          } else {
+            $sel .= $c;
+          }
         }
         if (ord($c) === 8) {
           $sel = 0;
