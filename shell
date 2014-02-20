@@ -16,34 +16,36 @@ function pt
 
 function e
 {
-    ~/bin/e $* 2> /tmp/editthisfile
+    TMPFILE=$((which gmktemp >/dev/null && gmktemp) || mktemp)
+    ~/bin/e $* 2> $TMPFILE
 
-    if [ ! `cat /tmp/editthisfile` = "" ]; then
-        F=$(cat /tmp/editthisfile)
+    if [ ! `cat $TMPFILE` = "" ]; then
+        F=$(cat $TMPFILE)
 
         if test -d "$F"; then
             cd "$F"
-            rm -f /tmp/editthisfile
+            rm -f $TMPFILE
             return
         fi
 
-        D=$(dirname $(cat /tmp/editthisfile))
+        D=$(dirname $(cat $TMPFILE))
         cd $D
         vim $F
     fi
 
-    rm -f /tmp/editthisfile
+    rm -f $TMPFILE
 }
 
 function g
 {
-    ~/bin/e $* 2> /tmp/editthisfile
+    TMPFILE=$((which gmktemp >/dev/null && gmktemp) || mktemp)
+    ~/bin/e $* 2> $TMPFILE
 
-    if [ ! `cat /tmp/editthisfile` = "" ]; then
-        cd $(dirname $(cat /tmp/editthisfile))
+    if [ ! `cat $TMPFILE` = "" ]; then
+        cd $(dirname $(cat $TMPFILE))
     fi
 
-    rm -f /tmp/editthisfile
+    rm -f $TMPFILE
 }
 
 alias N="e _NOTES_"
