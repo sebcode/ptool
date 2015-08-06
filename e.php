@@ -105,7 +105,7 @@ try {
     }
 
     $gitfiles = array();
-    $res = shell_exec("cd $path; git status --porcelain");
+    $res = shell_exec("cd $path; git status --porcelain 2>/dev/null");
     foreach (explode("\n", $res) as $file) {
         if (!$file = substr($file, 3)) {
             continue;
@@ -144,6 +144,10 @@ try {
 
         foreach ($prioConf as $regex => $prioChange) {
             if (preg_match("@$regex@", $rel)) {
+                if ($prioChange === 'exclude') {
+                    continue 2;
+                }
+
                 $prio += $prioChange;
             }
         }
