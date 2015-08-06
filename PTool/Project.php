@@ -2,14 +2,12 @@
 
 namespace PTool;
 
-class Project
-{
+class Project {
 
     public $handle;
     public $path;
 
-    public static function createFromPath($path)
-    {
+    public static function createFromPath($path) {
         $project = new Project;
         $project->handle = basename($path);
         $project->path = $path;
@@ -27,13 +25,25 @@ class Project
         return $project;
     }
 
-    public function getRepoPath()
-    {
+    public function getRepoPaths() {
         if (!file_exists($file = $this->path . '/.repo')) {
-            return $this->path;
+            return [ $this->path ];
         }
 
-        return $this->path . trim(file_get_contents($file)) . '/';
+        $c = file($file);
+
+        $result = [];
+
+        foreach (file($file) as $subdir) {
+            $result[] = $this->path . trim(trim($subdir), '/') . '/';
+        }
+
+        return $result;
+    }
+
+    public function getRepoPath() {
+        $ret = $this->getRepoPaths();
+        return reset($ret);
     }
 
 }

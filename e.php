@@ -70,8 +70,7 @@ try {
         $onlyGit = true;
     }
 
-    $path = $project->getRepoPath();
-    $cmd = "find ". rtrim($project->getRepoPath(), '/') ." ";
+    $cmd = "find ". rtrim($project->path, '/') ." ";
     foreach ($ignoreDirs as &$ignoreDir) {
         $ignoreDir = ' -not \( -name ' . $ignoreDir . ' -prune \) ';
     }
@@ -105,15 +104,17 @@ try {
     }
 
     $gitfiles = array();
-    $res = shell_exec("cd $path; git status --porcelain 2>/dev/null");
-    foreach (explode("\n", $res) as $file) {
-        if (!$file = substr($file, 3)) {
-            continue;
-        }
-        if ($file = realpath($path .'/'. $file)) {
-            $gitfiles[] = $file;
-            if ($onlyGit) {
-                $output .= "$file\n";
+    foreach ($project->getRepoPaths() as $path) {
+        $res = shell_exec("cd $path; git status --porcelain 2>/dev/null");
+        foreach (explode("\n", $res) as $file) {
+            if (!$file = substr($file, 3)) {
+                continue;
+            }
+            if ($file = realpath($path .'/'. $file)) {
+                $gitfiles[] = $file;
+                if ($onlyGit) {
+                    $output .= "$file\n";
+                }
             }
         }
     }
@@ -129,7 +130,7 @@ try {
             continue;
         }
 
-        $rel = substr($file, strlen($path));
+        $rel = substr($file, strlen($project->path));
         $reli = strtolower($rel);
         $ext = pathinfo($file, PATHINFO_EXTENSION);
 
@@ -177,7 +178,7 @@ try {
     }
 
     foreach ($files as $i => $file) {
-        $rel = substr($file, strlen($path));
+        $rel = substr($file, strlen($project->path));
         $prio = $prios[$i];
         $isGitFile = in_array($file, $gitfiles);
         $hasColor = false;
