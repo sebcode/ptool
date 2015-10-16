@@ -27,15 +27,29 @@ class PTool
             return $this->projects;
         }
 
-        $projects = array();
+        $dirs = [ $this->basePath ];
 
-        foreach (glob($this->basePath . '*', GLOB_ONLYDIR) as $path) {
-            if (!file_exists($path . '/.alias') && !(strpos(basename($path), 'dev-') === 0)) {
-                continue;
+        if (file_exists($f = $this->basePath . '/.ptooldirs')) {
+            foreach (file($f) as $subdir) {
+                $subdir = trim($subdir);
+                if (empty($subdir)) {
+                    continue;
+                }
+                $dirs[] = $this->basePath . '/' . $subdir;
             }
+        }
 
-            if ($project = Project::createFromPath($path . '/')) {
-                $projects[$project->handle] = $project;
+        $projects = [];
+
+        foreach ($dirs as $dir) {
+            foreach (glob($dir . '/*', GLOB_ONLYDIR) as $path) {
+                if (!file_exists($path . '/.alias')) {
+                    continue;
+                }
+
+                if ($project = Project::createFromPath($path . '/')) {
+                    $projects[$project->handle] = $project;
+                }
             }
         }
 

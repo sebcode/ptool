@@ -12,10 +12,6 @@ class Project {
         $project->handle = basename($path);
         $project->path = $path;
 
-        if (strpos($project->handle, 'dev-') === 0) {
-            $project->handle = substr($project->handle, 4);
-        }
-
         if (file_exists($project->path . '.alias')) {
             $project->handle = trim(file_get_contents($project->path . '.alias'));
         }
