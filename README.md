@@ -2,32 +2,42 @@
 
 Commandline scripts to quickly navigate through source code files.
 
-In my developement setup I usually work with vim on the commandline. I use these scripts to quickly find files based on a search pattern and open them in vim.
+In my developement setup I usually work with vim on the commandline. I use
+these scripts to quickly find files based on a search pattern and open them in
+vim.
 
 Typical workflow:
 
- * I want to edit a file from which I know that its filename contains `basemodel`. So I enter
+ * I want to edit a file from which I know that its filename contains
+   `basemodel`. So I enter
 
         e basemodel
 
- * Since the project has multiple files matching this pattern, I get a list of all matches and can choose the right one:
+ * Since the project has multiple files matching this pattern, I get a list of
+   all matches and can choose the right one:
 
         > (100)   0  server/app/Models/BaseModel.php
           (100)   1  testserver/app/BaseModel.php
         
         Select?
 
- * The selection can be changed with `j` and `k` (down/up) and confirmed with return. Then the selected file opens in vim.
+ * The selection can be changed with `j` and `k` (down/up) and confirmed with
+   return. Then the selected file opens in vim.
       
- * If I just want to go to the directory that contains this file (to create a new file for example), I use the command `g` instead of `e`:
+ * If I just want to go to the directory that contains this file (to create a
+   new file for example), I use the command `g` instead of `e`:
 
         g basemodel
 
- * If there is only one match for the pattern, the file is directly opened in the editor.
+ * If there is only one match for the pattern, the file is directly opened in
+   the editor.
 
- * The files are sorted based on rules which can be defined in `e.conf.php` in the project directory.
+ * The files are sorted based on rules which can be defined in `e.conf.php` in
+   the project directory.
 
- * Colors highlighting for search results: files that are already open are highlighted in purple, files that have git modifications are highlighted in green.
+ * Colors highlighting for search results: files that are already open are
+   highlighted in purple, files that have git modifications are highlighted in
+   green.
 
 ### Requirements
 
@@ -52,18 +62,25 @@ Typical workflow:
 
 ### Directory structure
 
-In my setup, all projects have their own directory under `~/dev/`. A project directory usually has the following common contents:
+In my setup, all projects have their own directory under `~/dev/`. A project
+directory usually has the following common contents:
 
- * `.alias` file with contains the project alias. For example `~/dev/TestProject/.alias` may contain `tp`. With `pt tp` I can switch to that project.
- * `shell`: If this file exists, it will be sourced for every new shell or when you switch to that project. May contain project specific shell aliases for example.
+ * `.alias` file with contains the project alias. For example
+   `~/dev/TestProject/.alias` may contain `tp`. With `pt tp` I can switch to
+   that project.
+ * `shell`: If this file exists, it will be sourced for every new shell or when
+   you switch to that project. May contain project specific shell aliases for
+   example.
  * `todo.txt`: Todo file, the command `N` opens this file in the editor.
  * `e.conf.php`: Ruleset for the commands `e` and `g`
- * `.repo` contains a list of the subdirectories that contain the git repositories of the project (newline separated).
+ * `.repo` contains a list of the subdirectories that contain the git
+   repositories of the project (newline separated).
  * One or multiple git repositories.
 
 ### Ruleset file format for `e.conf.php`
 
-The ruleset returns a PHP hash array with pattern/priority pairs. Search results are sorted based on the priorities. Example:
+The ruleset returns a PHP hash array with pattern/priority pairs. Search
+results are sorted based on the priorities. Example:
 
     <?php return [
       '\.php$' => 100,

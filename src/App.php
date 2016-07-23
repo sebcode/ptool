@@ -1,5 +1,7 @@
 <?php
 
+namespace PTool;
+
 class App
 {
     private $ptool;
@@ -7,7 +9,7 @@ class App
 
     public function __construct()
     {
-        $this->ptool = new PTool\PTool();
+        $this->ptool = new PTool();
     }
 
     public function commandHelp()
@@ -30,7 +32,7 @@ class App
     public function commandSelect($handle)
     {
         if (!$project = $this->ptool->getProject($handle)) {
-            throw new Exception('no such project');
+            throw new \Exception('no such project');
         }
 
         $this->ptool->setCurrentProject($project);
@@ -62,7 +64,7 @@ class App
     private function requireArgs($num)
     {
         if (count($this->args) < $num + 1) {
-            throw new Exception($num.' arguments required.');
+            throw new \Exception($num.' arguments required.');
         }
     }
 }
