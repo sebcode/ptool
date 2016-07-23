@@ -19,9 +19,9 @@ class App
     {
         foreach ($this->ptool->getProjects() as $project) {
             if ($this->ptool->isCurrent($project)) {
-                echo '[' . $project->handle . '] ';
+                echo '['.$project->handle.'] ';
             } else {
-                echo $project->handle . ' ';
+                echo $project->handle.' ';
             }
         }
         echo "\n";
@@ -62,8 +62,7 @@ class App
     private function requireArgs($num)
     {
         if (count($this->args) < $num + 1) {
-            throw new Exception($num . ' arguments required.');
+            throw new Exception($num.' arguments required.');
         }
     }
 }
-

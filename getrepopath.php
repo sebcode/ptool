@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-require_once(__DIR__ . '/autoloader.php');
+require_once __DIR__.'/autoloader.php';
 
-$ptool = new PTool\PTool;
+$ptool = new PTool\PTool();
 try {
     if (empty($argv[1])) {
         $project = $ptool->getCurrentProject();
@@ -15,4 +15,3 @@ try {
 } catch (Exception $e) {
     exit(1);
 }
-

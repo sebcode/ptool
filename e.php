@@ -1,22 +1,22 @@
 #!/usr/bin/env php
 <?php
 
-$buf = array();
+$buf = [];
 $sel = 0;
 
-if (file_exists($f = $_SERVER['HOME'] . '/.ptoolignore')) {
-    $ignoreDirs = include($f);
+if (file_exists($f = $_SERVER['HOME'].'/.ptoolignore')) {
+    $ignoreDirs = include $f;
 } else {
-    $ignoreDirs = array(
+    $ignoreDirs = [
         '.git',
         '.svn',
-    );
+    ];
 }
 
-require_once(__DIR__ . '/autoloader.php');
+require_once __DIR__.'/autoloader.php';
 
 try {
-    $ptool = new PTool\PTool;
+    $ptool = new PTool\PTool();
 
     if ($argc <= 1) {
         $arg = false;
@@ -46,7 +46,7 @@ try {
     }
 
     if ($arg === '_NOTES_') {
-        foreach (array($project->path . '/todo.txt', $project->path . '/notes.txt') as $file) {
+        foreach ([$project->path.'/todo.txt', $project->path.'/notes.txt'] as $file) {
             if (file_exists($file)) {
                 fwrite(STDERR, $file);
                 exit(0);
@@ -56,7 +56,7 @@ try {
     }
 
     if ($arg === '-i') {
-        echo "selected project path: " . $project->path . "\n";
+        echo 'selected project path: '.$project->path."\n";
         exit(0);
     }
 
@@ -70,13 +70,13 @@ try {
         $onlyGit = true;
     }
 
-    $cmd = "find ". rtrim($project->path, '/') ." ";
+    $cmd = 'find '.rtrim($project->path, '/').' ';
     foreach ($ignoreDirs as &$ignoreDir) {
-        $ignoreDir = ' -not \( -name ' . $ignoreDir . ' -prune \) ';
+        $ignoreDir = ' -not \( -name '.$ignoreDir.' -prune \) ';
     }
     $cmd .= implode('-and', $ignoreDirs);
     if ($arg) {
-        $cmd .= " | grep -i " . escapeshellcmd($arg);
+        $cmd .= ' | grep -i '.escapeshellcmd($arg);
     }
 
     if ($onlyGit) {
@@ -90,27 +90,27 @@ try {
         }
     }
 
-    $openFiles = array();
-    $files = array();
-    $prios = array();
+    $openFiles = [];
+    $files = [];
+    $prios = [];
 
     $i = 0;
 
-    $prioConf = array();
-    if (file_exists($f = $project->path . 'e.conf.php')) {
-        $prioConf = include($f);
-    } else if ($f = findPrioConf('e.conf.php')) {
-        $prioConf = include($f);
+    $prioConf = [];
+    if (file_exists($f = $project->path.'e.conf.php')) {
+        $prioConf = include $f;
+    } elseif ($f = findPrioConf('e.conf.php')) {
+        $prioConf = include $f;
     }
 
-    $gitfiles = array();
+    $gitfiles = [];
     foreach ($project->getRepoPaths() as $path) {
         $res = shell_exec("cd $path; git status --porcelain 2>/dev/null");
         foreach (explode("\n", $res) as $file) {
             if (!$file = substr($file, 3)) {
                 continue;
             }
-            if ($file = realpath($path .'/'. $file)) {
+            if ($file = realpath($path.'/'.$file)) {
                 $gitfiles[] = $file;
                 if ($onlyGit) {
                     $output .= "$file\n";
@@ -121,7 +121,7 @@ try {
 
     foreach (explode("\n", $output) as $file) {
         if (preg_match('@(.*?).swp$@', $file, $m)) {
-            $realFile = dirname($m[1]) .'/'. ltrim(basename($m[1]), '.');
+            $realFile = dirname($m[1]).'/'.ltrim(basename($m[1]), '.');
             $openFiles[] = $realFile;
             continue;
         }
@@ -137,7 +137,9 @@ try {
         $prio = 0;
 
         if ($searchExt) {
-            if ($ext === $searchExt) { $prio += 500; };
+            if ($ext === $searchExt) {
+                $prio += 500;
+            };
             if (strpos($ext, $searchExt) === 0) {
                 $prio += 400;
             }
@@ -165,7 +167,7 @@ try {
         $files[$i] = $file;
         $prios[$i] = $prio;
 
-        $i++;
+        ++$i;
     }
 
     array_multisort($prios, SORT_DESC, $files);
@@ -185,12 +187,12 @@ try {
 
         $line = '';
         $line .= str_pad("($prio)", 6, ' ', STR_PAD_RIGHT);
-        $line .= str_pad($i, 3, ' ', STR_PAD_LEFT) . ' ';
+        $line .= str_pad($i, 3, ' ', STR_PAD_LEFT).' ';
 
         if (in_array($file, $openFiles)) {
             $line .= "\e[0;35m";
             $hasColor = true;
-        } else if ($isGitFile) {
+        } elseif ($isGitFile) {
             $line .= "\e[0;32m";
             $hasColor = true;
         }
@@ -215,44 +217,44 @@ try {
 
     buf("\nSelect? ");
 
-    readline_callback_handler_install('', function() { });
+    readline_callback_handler_install('', function () { });
 
     $sel = 0;
     passthru('clear');
     printbuf();
 
     while (true) {
-      $r = array(STDIN);
-      $w = NULL;
-      $e = NULL;
-      $n = stream_select($r, $w, $e, 0);
-      if ($n && in_array(STDIN, $r)) {
-        passthru('clear');
-        $c = stream_get_contents(STDIN, 1);
-        if (is_numeric($c)) {
-          if (!$sel) {
-            $sel = $c;
-          } else {
-            $sel .= $c;
-          }
+        $r = [STDIN];
+        $w = null;
+        $e = null;
+        $n = stream_select($r, $w, $e, 0);
+        if ($n && in_array(STDIN, $r)) {
+            passthru('clear');
+            $c = stream_get_contents(STDIN, 1);
+            if (is_numeric($c)) {
+                if (!$sel) {
+                    $sel = $c;
+                } else {
+                    $sel .= $c;
+                }
+            }
+            if (ord($c) === 8) {
+                $sel = 0;
+            }
+            if (ord($c) === 10) {
+                break;
+            }
+            if (strtolower($c) === 'j') {
+                ++$sel;
+            }
+            if (strtolower($c) === 'k') {
+                --$sel;
+            }
+            if ($sel <= 0) {
+                $sel = 0;
+            }
+            printbuf();
         }
-        if (ord($c) === 8) {
-          $sel = 0;
-        }
-        if (ord($c) === 10) {
-          break;
-        }
-        if (strtolower($c) === 'j') {
-          $sel++;
-        }
-        if (strtolower($c) === 'k') {
-          $sel--;
-        }
-        if ($sel <= 0) {
-            $sel = 0;
-        }
-        printbuf();
-      }
     }
 
     if (!$sel) {
@@ -264,7 +266,7 @@ try {
         exit(0);
     }
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+    echo 'Error: '.$e->getMessage()."\n";
     exit(1);
 }
 
@@ -275,7 +277,7 @@ function findPrioConf($filename)
     $d = getcwd();
 
     while (strlen($d) >= 2) {
-        if (file_exists($f = $d .'/'. $filename)) {
+        if (file_exists($f = $d.'/'.$filename)) {
             return $f;
         }
 
@@ -296,11 +298,10 @@ function printbuf()
     global $buf, $sel;
     foreach ($buf as $i => $s) {
         if ($i == $sel) {
-            echo ">";
+            echo '>';
         } else {
-            echo " ";
+            echo ' ';
         }
         echo " $s\n";
     }
 }
-

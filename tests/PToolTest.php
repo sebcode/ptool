@@ -8,7 +8,7 @@ class PToolTest extends TestCase
 
     public function setUp()
     {
-        $this->ptool = new PTool\PTool(__DIR__ . '/testdata/');
+        $this->ptool = new PTool\PTool(__DIR__.'/testdata/');
     }
 
     public function testGetProjects()
@@ -21,10 +21,9 @@ class PToolTest extends TestCase
     {
         $basePath = $this->ptool->getBasePath();
         $project = $this->ptool->getProject('slv');
-        $this->assertEquals($basePath . 'silver/git/', $project->getRepoPath());
+        $this->assertEquals($basePath.'silver/git/', $project->getRepoPath());
 
         $project = $this->ptool->getProject('stg');
-        $this->assertEquals($basePath . 'dev-STG/', $project->getRepoPath());
+        $this->assertEquals($basePath.'dev-STG/', $project->getRepoPath());
     }
-
 }
