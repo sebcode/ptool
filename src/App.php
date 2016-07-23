@@ -21,9 +21,14 @@ class App
     {
         foreach ($this->ptool->getProjects() as $project) {
             if ($this->ptool->isCurrent($project)) {
-                echo '['.$project->handle.'] ';
+                echo '['.$project->handle.']' . "\t";
             } else {
-                echo $project->handle.' ';
+                echo $project->handle."\t";
+            }
+            if ($project->desc) {
+                echo " - ".$project->desc."\n";
+            } else {
+                echo "\n";
             }
         }
         echo "\n";

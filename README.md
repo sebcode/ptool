@@ -68,6 +68,8 @@ directory usually has the following common contents:
  * `.alias` file with contains the project alias. For example
    `~/dev/TestProject/.alias` may contain `tp`. With `pt tp` I can switch to
    that project.
+ * The second line of the `.alias` file may contain a project description to be
+   displayed in the project list.
  * `shell`: If this file exists, it will be sourced for every new shell or when
    you switch to that project. May contain project specific shell aliases for
    example.

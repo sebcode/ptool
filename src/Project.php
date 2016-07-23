@@ -6,6 +6,7 @@ class Project
 {
     public $handle;
     public $path;
+    public $desc;
 
     public static function createFromPath($path)
     {
@@ -13,8 +14,12 @@ class Project
         $project->handle = basename($path);
         $project->path = $path;
 
-        if (file_exists($project->path.'.alias')) {
-            $project->handle = trim(file_get_contents($project->path.'.alias'));
+        if (file_exists($file = $project->path.'.alias')) {
+            $c = file($file);
+            $project->handle = trim($c[0]);
+            if (!empty($c[1])) {
+                $project->desc = trim($c[1]);
+            }
         }
 
         $project->handle = strtolower($project->handle);
