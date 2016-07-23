@@ -13,7 +13,7 @@ if (file_exists($f = $_SERVER['HOME'].'/.ptoolignore')) {
     ];
 }
 
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 try {
     $ptool = new PTool\PTool();
