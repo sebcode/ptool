@@ -241,7 +241,7 @@ try {
             if (ord($c) === 8) {
                 $sel = 0;
             }
-            if (ord($c) === 10) {
+            if (ord($c) === 10 || ord($c) === 13) {
                 break;
             }
             if (strtolower($c) === 'j') {
