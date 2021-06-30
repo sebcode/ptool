@@ -12,6 +12,7 @@ function pt
 
     test -f "$VAL" && {
         source "$VAL"
+        exec bash
     }
 }
 
