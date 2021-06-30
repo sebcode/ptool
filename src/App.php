@@ -41,6 +41,7 @@ class App
         }
 
         $this->ptool->setCurrentProject($project);
+        echo "Selected: {$project->handle}\n";
     }
 
     public function process($args)
@@ -63,7 +64,6 @@ class App
         }
 
         $this->commandSelect($args[1]);
-        $this->commandShow();
     }
 
     private function requireArgs($num)
