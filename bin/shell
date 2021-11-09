@@ -5,9 +5,9 @@ function pt
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     PTOOL="$DIR/ptool.php"
 
-    $PTOOL $1
+    $PTOOL "$1"
 
-    DEVPATH=$($DIR/getpath.php)
+    DEVPATH=$("$DIR/getpath.php")
     VAL="$DEVPATH/shell"
 
     test -f "$VAL" && {
@@ -18,36 +18,36 @@ function pt
 
 function e
 {
-    TMPFILE=$((which gmktemp >/dev/null && gmktemp) || mktemp)
-    ~/bin/e $* 2> $TMPFILE
+    TMPFILE=$( (command -v gmktemp >/dev/null && gmktemp) || mktemp )
+    ~/bin/e "$@" 2> "$TMPFILE"
 
-    if [ ! `cat $TMPFILE` = "" ]; then
-        F=$(cat $TMPFILE)
+	if [ ! "$(cat "$TMPFILE")" = "" ]; then
+        F=$(cat "$TMPFILE")
 
         if test -d "$F"; then
-            cd "$F"
-            rm -f $TMPFILE
+            cd "$F" || exit 1
+            rm -f "$TMPFILE"
             return
         fi
 
-        D=$(dirname $(cat $TMPFILE))
-        cd $D
-        vim $F
+        D="$(dirname "$(cat "$TMPFILE")")"
+        cd "$D" || exit 1
+        vim "$F"
     fi
 
-    rm -f $TMPFILE
+    rm -f "$TMPFILE"
 }
 
 function g
 {
-    TMPFILE=$((which gmktemp >/dev/null && gmktemp) || mktemp)
-    ~/bin/e $* 2> $TMPFILE
+    TMPFILE=$( (command -v gmktemp >/dev/null && gmktemp) || mktemp )
+    ~/bin/e "$@" 2> "$TMPFILE"
 
-    if [ ! `cat $TMPFILE` = "" ]; then
-        cd $(dirname $(cat $TMPFILE))
+	if [ ! "$(cat "$TMPFILE")" = "" ]; then
+        cd "$(dirname "$(cat "$TMPFILE")")" || exit 1
     fi
 
-    rm -f $TMPFILE
+    rm -f "$TMPFILE"
 }
 
 alias N="e _NOTES_"

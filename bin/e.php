@@ -70,7 +70,9 @@ try {
         $onlyGit = true;
     }
 
-    $cmd = 'find '.rtrim($project->path, '/').' ';
+    $path = realpath(rtrim($project->path, '/'));
+
+    $cmd = "find $path ";
     foreach ($ignoreDirs as &$ignoreDir) {
         $ignoreDir = ' -not \( -name '.$ignoreDir.' -prune \) ';
     }
